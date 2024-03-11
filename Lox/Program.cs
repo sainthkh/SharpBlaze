@@ -1,4 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Lox;
+
+// See https://aka.ms/new-console-template for more information
 void RunFile(string path) {
     var source = File.ReadAllText(path);
     Run(source);

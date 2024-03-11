@@ -8,11 +8,24 @@
             "name": "Run Lox",
             "type": "coreclr",
             "request": "launch",
-            // "preLaunchTask": "buildDesktopGL",
+            "preLaunchTask": "buildLox",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/Lox/bin/Debug/net6.0/Lox.dll",
             "args": ["test.lox"],
             "cwd": "${workspaceFolder}/Lox",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Run Lox Tool",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "buildLoxTools",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/Lox.Tools/bin/Debug/net6.0/Lox.Tools.dll",
+            "args": ["../Lox"],
+            "cwd": "${workspaceFolder}/Lox.Tools",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false

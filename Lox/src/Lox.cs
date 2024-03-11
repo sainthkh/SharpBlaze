@@ -1,3 +1,5 @@
+namespace Lox;
+
 public class Lox {
     private static bool HadError = false;
 
