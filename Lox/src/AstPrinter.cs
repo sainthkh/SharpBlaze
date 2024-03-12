@@ -3,7 +3,9 @@ using System.Text;
 namespace Lox;
 
 public class AstPrinter: Expr.IVisitor<string> {
-    public string Print(Expr expr) {
+    public string Print(Expr? expr) {
+        if (expr == null) return "parse result is null.";
+
         return expr.Accept(this);
     }
 

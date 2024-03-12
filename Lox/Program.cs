@@ -18,9 +18,18 @@ void Run(string source) {
     var scanner = new Scanner(source);
     var tokens = scanner.ScanTokens();
     
-    foreach (var token in tokens) {
-        Console.WriteLine(token);
-    }
+    // foreach (var token in tokens) {
+    //     Console.WriteLine(token);
+    // }
+
+    var parser = new Parser(tokens);
+    var expression = parser.Parse();
+
+    if (Lox.Lox.HadError) return;
+
+    var astPrinter = new AstPrinter();
+
+    Console.WriteLine(astPrinter.Print(expression));
 }
 
 Console.WriteLine("Welcome to Lox!");

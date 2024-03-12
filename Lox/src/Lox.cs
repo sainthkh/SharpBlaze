@@ -1,7 +1,7 @@
 namespace Lox;
 
 public class Lox {
-    private static bool HadError = false;
+    public static bool HadError { get; private set; }
 
     public static void Report(int line, string where, string message) {
         Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
@@ -10,5 +10,13 @@ public class Lox {
 
     public static void Error(int line, string message) {
         Report(line, "", message);
+    }
+
+    public static void Error(Token token, string message) {
+        if (token.Type == TokenType.EOF) {
+            Report(token.Line, " at end", message);
+        } else {
+            Report(token.Line, $" at '{token.Lexeme}'", message);
+        }
     }
 }
