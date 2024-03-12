@@ -18,6 +18,10 @@ public abstract class Expr {
             Op = op;
             Right = right;
         }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitBinaryExpr(this);
+        }
     }
     public class Grouping : Expr {
         public Expr Expression { get; private set; }
@@ -25,12 +29,20 @@ public abstract class Expr {
         public Grouping(Expr expression) {
             Expression = expression;
         }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitGroupingExpr(this);
+        }
     }
     public class Literal : Expr {
         public object? Value { get; private set; }
 
         public Literal(object? value) {
             Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitLiteralExpr(this);
         }
     }
     public class Unary : Expr {
@@ -41,5 +53,11 @@ public abstract class Expr {
             Op = op;
             Right = right;
         }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitUnaryExpr(this);
+        }
     }
+
+    public abstract T Accept<T>(IVisitor<T> visitor);
 }

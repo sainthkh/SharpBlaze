@@ -14,11 +14,16 @@ public class GenerateAst {
 
         DefineVisitor(writer, baseName, types);
 
+        // Define Types
         foreach (var type in types) {
             var className = type.Split(":")[0].Trim();
             var fields = type.Split(":")[1].Trim();
             DefineType(writer, baseName, className, fields);
         }
+
+        // The base Accept() method
+        writer.WriteLine();
+        writer.WriteLine("    public abstract T Accept<T>(IVisitor<T> visitor);");
 
         writer.WriteLine("}");
     }
@@ -50,6 +55,12 @@ public class GenerateAst {
             var name = field.Split(" ")[1];
             writer.WriteLine($"            {UpperFirst(name)} = {name};");
         }
+        writer.WriteLine("        }");
+
+        // Visitor pattern - define the Accept() method
+        writer.WriteLine();
+        writer.WriteLine("        public override T Accept<T>(IVisitor<T> visitor) {");
+        writer.WriteLine($"            return visitor.Visit{className}{baseName}(this);");
         writer.WriteLine("        }");
 
         writer.WriteLine("    }");
