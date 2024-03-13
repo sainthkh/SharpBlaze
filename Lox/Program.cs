@@ -1,5 +1,7 @@
 ﻿using Lox;
 
+var interpreter = new Interpreter();
+
 // See https://aka.ms/new-console-template for more information
 void RunFile(string path) {
     var source = File.ReadAllText(path);
@@ -25,11 +27,19 @@ void Run(string source) {
     var parser = new Parser(tokens);
     var expression = parser.Parse();
 
-    if (Lox.Lox.HadError) return;
+    if (Lox.Lox.HadError) {
+        Environment.Exit(65);
+    }
 
-    var astPrinter = new AstPrinter();
+    // var astPrinter = new AstPrinter();
 
-    Console.WriteLine(astPrinter.Print(expression));
+    // Console.WriteLine(astPrinter.Print(expression));
+
+    interpreter.Interpret(expression);
+
+    if (Lox.Lox.HadRuntimeError) {
+        Environment.Exit(70);
+    }
 }
 
 Console.WriteLine("Welcome to Lox!");
