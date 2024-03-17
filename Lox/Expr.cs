@@ -3,10 +3,25 @@ namespace Lox;
 
 public abstract class Expr {
     public interface IVisitor<T> {
+        T VisitAssignExpr(Assign expr);
         T VisitBinaryExpr(Binary expr);
         T VisitGroupingExpr(Grouping expr);
         T VisitLiteralExpr(Literal expr);
         T VisitUnaryExpr(Unary expr);
+        T VisitVariableExpr(Variable expr);
+    }
+    public class Assign : Expr {
+        public Token Name { get; private set; }
+        public Expr Value { get; private set; }
+
+        public Assign(Token name, Expr value) {
+            Name = name;
+            Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitAssignExpr(this);
+        }
     }
     public class Binary : Expr {
         public Expr Left { get; private set; }
@@ -56,6 +71,17 @@ public abstract class Expr {
 
         public override T Accept<T>(IVisitor<T> visitor) {
             return visitor.VisitUnaryExpr(this);
+        }
+    }
+    public class Variable : Expr {
+        public Token Name { get; private set; }
+
+        public Variable(Token name) {
+            Name = name;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitVariableExpr(this);
         }
     }
 

@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace Lox;
 
 public class Parser {
@@ -8,18 +10,85 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expr? Parse() {
-        try
-        {
-            return Expression();
-        } catch (ParseError)
-        {
+    public List<Stmt?> Parse() {
+        List<Stmt?> statements = new();
+        while (!IsAtEnd()) {
+            statements.Add(Declaration());
+        }
+
+        return statements;
+    }
+
+    private Stmt? Declaration() {
+        try {
+            if (Match(TokenType.VAR)) return VarDeclaration();
+            return Statement();
+        } catch (ParseError) {
+            Synchronize();
             return null;
         }
     }
 
+    private Stmt VarDeclaration() {
+        var name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        Expr? initializer = null;
+        if (Match(TokenType.EQUAL)) {
+            initializer = Expression();
+        }
+
+        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
+    }
+
+    private Stmt Statement() {
+        if (Match(TokenType.PRINT)) return PrintStatement();
+        if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
+        return ExpressionStatement();
+    }
+
+    private Stmt PrintStatement() {
+        var value = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private List<Stmt?> Block() {
+        List<Stmt?> statements = new();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd()) {
+            statements.Add(Declaration());
+        }
+
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+
+    private Stmt ExpressionStatement() {
+        var expr = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
     private Expr Expression() {
-        return Equality();
+        return Assignment();
+    }
+
+    private Expr Assignment() {
+        var expr = Equality();
+
+        if (Match(TokenType.EQUAL)) {
+            var equals = Previous();
+            var value = Assignment();
+
+            if (expr is Expr.Variable variable) {
+                var name = variable.Name;
+                return new Expr.Assign(name, value);
+            }
+
+            Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private Expr Equality() {
@@ -93,6 +162,10 @@ public class Parser {
             var expr = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
+        }
+
+        if (Match(TokenType.IDENTIFIER)) {
+            return new Expr.Variable(Previous());
         }
 
         throw Error(Peek(), "Expect expression.");

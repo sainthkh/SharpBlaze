@@ -25,7 +25,8 @@ void Run(string source) {
     // }
 
     var parser = new Parser(tokens);
-    var expression = parser.Parse();
+    var statements = parser.Parse();
+    // var expression = parser.Parse();
 
     if (Lox.Lox.HadError) {
         Environment.Exit(65);
@@ -35,7 +36,7 @@ void Run(string source) {
 
     // Console.WriteLine(astPrinter.Print(expression));
 
-    interpreter.Interpret(expression);
+    interpreter.Interpret(statements);
 
     if (Lox.Lox.HadRuntimeError) {
         Environment.Exit(70);

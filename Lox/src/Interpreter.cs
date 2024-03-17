@@ -1,12 +1,13 @@
 namespace Lox;
 
-public class Interpreter: Expr.IVisitor<object?> {
-    public void Interpret(Expr? expr) {
-        if (expr == null) return;
-        
+public class Interpreter: Expr.IVisitor<object?>, Stmt.IVisitor<object?> {
+    private Env _env = new();
+
+    public void Interpret(List<Stmt?> statements) {
         try {
-            var value = Evaluate(expr);
-            Console.WriteLine(Stringify(value));
+            foreach (var statement in statements) {
+                Execute(statement);
+            }
         } catch (RuntimeError error) {
             Lox.RuntimeError(error);
         }
@@ -14,6 +15,12 @@ public class Interpreter: Expr.IVisitor<object?> {
 
     private object? Evaluate(Expr expr) {
         return expr.Accept(this);
+    }
+
+    public object? VisitAssignExpr(Expr.Assign expr) {
+        var value = Evaluate(expr.Value);
+        _env.Assign(expr.Name, value);
+        return value;
     }
 
     public object? VisitBinaryExpr(Expr.Binary expr) {
@@ -83,6 +90,10 @@ public class Interpreter: Expr.IVisitor<object?> {
         return null;
     }
 
+    public object? VisitVariableExpr(Expr.Variable expr) {
+        return _env.Get(expr.Name);
+    }
+
     private void CheckNumberOperand(Token op, object? operand) {
         if (operand is double) return;
         throw new RuntimeError(op, "Operand must be a number.");
@@ -115,6 +126,48 @@ public class Interpreter: Expr.IVisitor<object?> {
             return text ?? "";
         }
         return obj.ToString() ?? "";
+    }
+
+    public object? VisitBlockStmt(Stmt.Block stmt) {
+        ExecuteBlock(stmt.Statements, new Env(_env));
+        return null;
+    }
+
+    public object? VisitExpressionStmt(Stmt.Expression stmt) {
+        Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object? VisitPrintStmt(Stmt.Print stmt) {
+        var value = Evaluate(stmt.Expr);
+        Console.WriteLine(Stringify(value));
+        return null;
+    }
+
+    public object? VisitVarStmt(Stmt.Var stmt) {
+        object? value = null;
+        if (stmt.Initializer != null) {
+            value = Evaluate(stmt.Initializer);
+        }
+
+        _env.Define(stmt.Name.Lexeme, value);
+        return null;
+    }
+
+    private void ExecuteBlock(List<Stmt?> statements, Env environment) {
+        var previous = _env;
+        try {
+            _env = environment;
+            foreach (var statement in statements) {
+                Execute(statement);
+            }
+        } finally {
+            _env = previous;
+        }
+    }
+
+    private void Execute(Stmt? stmt) {
+        if (stmt != null) stmt.Accept(this);
     }
 }
 
