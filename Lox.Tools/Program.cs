@@ -23,4 +23,5 @@ GenerateAst.DefineAst(outputDir, "Stmt", new List<string> {
     "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
     "Print      : Expr expr",
     "Var        : Token name, Expr? initializer",
+    "While      : Expr condition, Stmt body",
 });

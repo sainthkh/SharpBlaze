@@ -175,6 +175,13 @@ public class Interpreter: Expr.IVisitor<object?>, Stmt.IVisitor<object?> {
         return null;
     }
 
+    public object? VisitWhileStmt(Stmt.While stmt) {
+        while (IsTruthy(Evaluate(stmt.Condition))) {
+            Execute(stmt.Body);
+        }
+        return null;
+    }
+
     private void ExecuteBlock(List<Stmt?> statements, Env environment) {
         var previous = _env;
         try {
